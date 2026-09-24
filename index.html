@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Where Does This Website Work?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F7F3FD; --surface:#FFFFFF; --ink:#2B1257; --muted:#6D5F8A; --line:#E0D5F3;
+  --purple:#5B2BB5; --purple-deep:#3A1680; --purple-soft:#EDE4FB;
+  --yellow:#FFC83D; --yellow-ink:#2B1257; --yellow-soft:#FFF4D1;
+  --bad:#D13C4B; --bad-bg:#FDE5E8; --ok:#1F8A5B; --ok-bg:#E2F5EC; --focus:#FFC83D;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#170D2B; --surface:#221540; --ink:#F1EAFE; --muted:#A898C8; --line:#382660;
+    --purple:#8F63F0; --purple-deep:#2A1260; --purple-soft:#2E1F55;
+    --yellow:#FFD35C; --yellow-ink:#1D0E3D; --yellow-soft:#3A2F10;
+    --bad:#FF7C88; --bad-bg:#3F1A25; --ok:#5CD39B; --ok-bg:#17352A;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#170D2B; --surface:#221540; --ink:#F1EAFE; --muted:#A898C8; --line:#382660;
+  --purple:#8F63F0; --purple-deep:#2A1260; --purple-soft:#2E1F55;
+  --yellow:#FFD35C; --yellow-ink:#1D0E3D; --yellow-soft:#3A2F10;
+  --bad:#FF7C88; --bad-bg:#3F1A25; --ok:#5CD39B; --ok-bg:#17352A;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.55 "IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif}
+.hero{background:var(--purple-deep);color:#F4ECFF;padding:44px 20px 36px}
+.wrap{max-width:900px;margin:0 auto}
+h1{font:800 clamp(2.1rem,7vw,3.6rem)/1.02 "Bricolage Grotesque","Trebuchet MS",sans-serif;letter-spacing:-.02em;margin:0 0 12px;color:#FFD35C}
+.lede{margin:0 0 26px;max-width:58ch;color:#DCCBFF}
+
+.tabs{display:inline-flex;background:rgba(255,255,255,.08);border-radius:12px;padding:4px;margin-bottom:14px}
+.tabs button{border:0;background:transparent;color:#DCCBFF;font:600 15px "IBM Plex Sans",system-ui,sans-serif;padding:9px 16px;border-radius:9px;cursor:pointer}
+.tabs button[aria-selected="true"]{background:#FFD35C;color:#1D0E3D}
+
+.bar{display:flex;flex-wrap:wrap;gap:8px;background:#FFFFFF;border-radius:16px;padding:8px}
+.bar:focus-within{outline:3px solid #FFD35C;outline-offset:3px}
+.url{display:flex;align-items:center;flex:1 1 260px;min-width:0;padding-left:10px}
+.lock{color:#7A6A9A;font-size:15px;white-space:nowrap}
+.bar input,.bar select{border:0;background:transparent;color:#2B1257;font:500 18px "IBM Plex Sans",system-ui,sans-serif;padding:10px 4px;outline:none;min-width:0}
+.bar input{flex:1}
+.bar select{flex:0 1 230px;border-left:1px solid #E0D5F3;padding-left:12px;cursor:pointer;max-width:100%}
+.bar select[hidden]{display:none}
+.go{border:0;border-radius:11px;background:#FFC83D;color:#2B1257;font:700 16px "IBM Plex Sans",system-ui,sans-serif;padding:12px 22px;cursor:pointer}
+.go:hover{background:#FFD35C}
+.go:disabled{opacity:.5;cursor:default}
+button:focus-visible,select:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+
+.tries{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;align-items:center;color:#CBB8F5;font-size:14px}
+.chip{border:1px solid rgba(255,255,255,.28);background:transparent;color:#F4ECFF;border-radius:999px;padding:5px 12px;font:500 14px "IBM Plex Sans",system-ui,sans-serif;cursor:pointer}
+.chip:hover{border-color:#FFD35C;color:#FFD35C}
+
+main{padding:0 20px 64px}
+#status{margin-top:30px}
+.thinking{display:flex;align-items:center;gap:12px;color:var(--muted)}
+.pulse{width:10px;height:10px;border-radius:50%;background:var(--yellow);box-shadow:0 0 0 0 var(--yellow);animation:p 1.1s ease-in-out infinite}
+@keyframes p{50%{transform:scale(1.8);opacity:.4}}
+@media (prefers-reduced-motion:reduce){.pulse{animation:none}}
+.stop{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:8px;padding:4px 10px;cursor:pointer;font:inherit;font-size:14px}
+.err{background:var(--bad-bg);color:var(--bad);border-radius:10px;padding:12px 14px}
+
+.result{margin-top:30px}
+.domain{font:800 clamp(1.6rem,5vw,2.3rem)/1.1 "Bricolage Grotesque","Trebuchet MS",sans-serif;margin:0 0 6px;word-break:break-all;color:var(--purple)}
+.conf{display:inline-block;font-size:13px;border:1px solid var(--line);border-radius:999px;padding:2px 10px;color:var(--muted);margin-bottom:12px}
+.summary{margin:0 0 22px;max-width:64ch}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:26px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.stat b{display:block;font:800 1.9rem/1 "Bricolage Grotesque","Trebuchet MS",sans-serif}
+.stat span{color:var(--muted);font-size:14px}
+.stat.s-bad b{color:var(--bad)} .stat.s-warn b{color:#C08A00} .stat.s-open b{color:var(--purple)} .stat.s-ns b{color:var(--muted)}
+:root[data-theme="dark"] .stat.s-warn b{color:var(--yellow)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .stat.s-warn b{color:var(--yellow)}}
+
+.blockedbox{background:var(--bad-bg);border-radius:14px;padding:16px 18px;margin-bottom:14px}
+.blockedbox.warn{background:var(--yellow-soft)}
+.blockedbox.ns{background:var(--purple-soft)}
+.blockedbox h2{font:800 1.2rem/1.3 "Bricolage Grotesque","Trebuchet MS",sans-serif;margin:0 0 10px}
+.blockedbox ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.blockedbox li{display:grid;grid-template-columns:auto 1fr;gap:2px 10px}
+.flag{font-size:22px;line-height:1.2}
+.cname{font-weight:600}
+.cnote{grid-column:2;color:var(--muted);font-size:14px}
+.okbox{background:var(--ok-bg);color:var(--ink);border-radius:14px;padding:14px 18px;margin-bottom:14px}
+
+.allhead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;margin:34px 0 6px}
+.allhead h2{font:800 1.35rem/1.2 "Bricolage Grotesque","Trebuchet MS",sans-serif;margin:0}
+.filter{display:flex;gap:6px;flex-wrap:wrap}
+.filter button{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:5px 12px;font:500 14px "IBM Plex Sans",system-ui,sans-serif;cursor:pointer}
+.filter button[aria-pressed="true"]{background:var(--purple);border-color:var(--purple);color:#fff}
+.key{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;color:var(--muted);margin-bottom:18px}
+.key i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.cont h3{font:600 1rem/1.3 "Bricolage Grotesque","Trebuchet MS",sans-serif;margin:18px 0 8px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:6px}
+.tile{display:flex;align-items:center;gap:8px;border-radius:9px;padding:7px 10px;font-size:14px;background:var(--purple-soft);border:1px solid transparent;min-width:0}
+.tile .n{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tile.blocked{background:var(--bad-bg);border-color:var(--bad);font-weight:600}
+.tile.restricted{background:var(--yellow-soft);border-color:var(--yellow)}
+.tile.ns{background:transparent;border:1px dashed var(--muted);color:var(--muted)}
+.tile.hide{display:none}
+.cont.empty{display:none}
+
+.verdict{border-radius:18px;padding:22px 22px;margin-bottom:18px;display:grid;grid-template-columns:auto 1fr;gap:6px 16px;align-items:center}
+.verdict .big{font-size:44px;line-height:1}
+.verdict h2{font:800 clamp(1.4rem,4.5vw,2rem)/1.15 "Bricolage Grotesque","Trebuchet MS",sans-serif;margin:0}
+.verdict p{grid-column:1/-1;margin:6px 0 0;max-width:64ch}
+.v-accessible{background:var(--ok-bg)} .v-blocked{background:var(--bad-bg)} .v-restricted{background:var(--yellow-soft)} .v-not_served{background:var(--purple-soft)} .v-unknown{background:var(--surface);border:1px solid var(--line)}
+.facts{display:grid;gap:10px;margin:0;padding:0;list-style:none}
+.facts li{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+.facts b{display:block;font-size:13px;color:var(--muted);font-weight:500}
+
+.tag{display:inline-block;font-size:12px;font-weight:600;border-radius:999px;padding:1px 9px;margin-left:8px;vertical-align:1px}
+.tag.blocked{background:var(--bad);color:#fff}
+.tag.restricted{background:var(--yellow);color:#2B1257}
+.tag.ns{background:var(--purple);color:#fff}
+.tile{cursor:pointer;font:inherit;color:inherit;text-align:left}
+.tile:hover{border-color:var(--purple)}
+.tile.no{background:var(--bad-bg);border-color:var(--bad);font-weight:600}
+.stat.s-no b{color:var(--bad)}
+.def{font-size:14px;color:var(--muted);margin:-14px 0 22px}
+
+.browser{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--surface);margin:6px 0 20px;box-shadow:0 10px 30px -18px rgba(43,18,87,.5)}
+.chrome{display:flex;align-items:center;gap:10px;background:var(--purple-soft);padding:10px 12px;border-bottom:1px solid var(--line)}
+.dots{display:flex;gap:6px}.dots i{width:11px;height:11px;border-radius:50%;background:var(--line)}
+.addr{flex:1;min-width:0;background:var(--surface);border-radius:8px;padding:6px 12px;font-size:14px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.addr b{color:var(--ink);font-weight:500}
+.loc{font-size:13px;color:var(--muted);white-space:nowrap}
+.page{min-height:280px;padding:28px 24px;background:#FFFFFF;color:#202124}
+.page.site .nav{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:26px}
+.page.site .logo{font:800 20px "Bricolage Grotesque","Trebuchet MS",sans-serif;color:#2B1257}
+.page.site .links{display:flex;gap:8px}.page.site .links i{width:44px;height:9px;border-radius:5px;background:#E9E3F5}
+.page.site h3{font:800 clamp(1.4rem,4vw,2rem)/1.15 "Bricolage Grotesque","Trebuchet MS",sans-serif;margin:0 0 10px;color:#2B1257}
+.page.site p{margin:0 0 20px;color:#555;max-width:52ch}
+.page.site .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.page.site .cards i{height:70px;border-radius:10px;background:#F1ECFA}
+.page.err-page{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+.page.err-page .ico{font-size:40px;margin-bottom:14px}
+.page.err-page h3{font-size:1.5rem;font-weight:500;margin:0 0 10px;color:#202124}
+.page.err-page p{margin:0 0 8px;color:#5f6368;max-width:56ch}
+.page.err-page code{display:inline-block;margin-top:12px;font-size:12px;color:#5f6368}
+.page.notice{text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.page.notice .seal{width:56px;height:56px;border-radius:50%;background:#B3261E;color:#fff;display:grid;place-items:center;font-size:26px;margin-bottom:16px}
+.page.notice h3{font-size:1.3rem;margin:0 0 10px;color:#B3261E}
+.page.notice p{max-width:52ch;color:#333;margin:0}
+.page.slow .bar2{height:4px;border-radius:2px;background:linear-gradient(90deg,#FFC83D 30%,#EEE 30%);margin-bottom:24px}
+.caption{font-size:13px;color:var(--muted);margin:-12px 0 20px}
+
+.shot{display:block;width:100%;height:auto;background:#fff}
+.shotwait{min-height:260px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--muted);padding:24px;text-align:center;background:var(--surface)}
+.tile.none{background:transparent;border:1px dashed var(--line);color:var(--muted)}
+.tile.pending{opacity:.55}
+.why{color:var(--muted);font-size:14px}
+.fine{margin-top:36px;border-top:1px solid var(--line);padding-top:14px;color:var(--muted);font-size:13px;max-width:66ch}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <h1>Where does this website work?</h1>
+    <p class="lede">Test a website live from real machines around the world, or open it from one country and see a real screenshot.</p>
+
+    <div class="tabs" role="tablist" aria-label="Check mode">
+      <button role="tab" id="t-all" aria-selected="true">All countries</button>
+      <button role="tab" id="t-one" aria-selected="false">One country</button>
+    </div>
+
+    <form class="bar" id="f" onsubmit="return false" role="search">
+      <div class="url"><span class="lock" aria-hidden="true">https://</span>
+        <input id="q" type="text" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="example.com" aria-label="Website address"></div>
+      <select id="country" aria-label="Country" hidden></select>
+      <button class="go" id="go" type="button">Check all countries</button>
+    </form>
+    <div class="tries" id="tries">Try:
+      <button class="chip" type="button">x.com</button>
+      <button class="chip" type="button">telegram.org</button>
+      <button class="chip" type="button">netflix.com</button>
+      <button class="chip" type="button">wikipedia.org</button>
+    </div>
+  </div>
+</header>
+
+<main><div class="wrap">
+  <div id="status" aria-live="polite"></div>
+  <div id="out"></div>
+  <p class="fine">Live tests run from real test machines in each country through Globalping. Blocking can differ between internet providers in the same country, so one test shows what that one network sees. Previews are real screenshots taken through a connection in the chosen country.</p>
+</div></main>
+
+<script>
+const COUNTRIES = [["BR","Brazil","SA"],["CO","Colombia","SA"],["AR","Argentina","SA"],["PE","Peru","SA"],["VE","Venezuela","SA"],["CL","Chile","SA"],["EC","Ecuador","SA"],["BO","Bolivia","SA"],["PY","Paraguay","SA"],["UY","Uruguay","SA"],["GY","Guyana","SA"],["SR","Suriname","SA"],["GF","French Guiana","SA"],["FK","Falkland Islands","SA"],["AU","Australia","OC"],["PG","Papua New Guinea","OC"],["NZ","New Zealand","OC"],["FJ","Fiji","OC"],["SB","Solomon Islands","OC"],["VU","Vanuatu","OC"],["NC","New Caledonia","OC"],["PF","French Polynesia","OC"],["WS","Samoa","OC"],["GU","Guam","OC"],["KI","Kiribati","OC"],["FM","Micronesia","OC"],["TO","Tonga","OC"],["AS","American Samoa","OC"],["MP","Northern Mariana Islands","OC"],["MH","Marshall Islands","OC"],["PW","Palau","OC"],["CK","Cook Islands","OC"],["NR","Nauru","OC"],["WF","Wallis and Futuna","OC"],["TV","Tuvalu","OC"],["TK","Tokelau","OC"],["NU","Niue","OC"],["US","United States","NA"],["MX","Mexico","NA"],["CA","Canada","NA"],["GT","Guatemala","NA"],["HT","Haiti","NA"],["DO","Dominican Republic","NA"],["HN","Honduras","NA"],["CU","Cuba","NA"],["NI","Nicaragua","NA"],["SV","El Salvador","NA"],["CR","Costa Rica","NA"],["PA","Panama","NA"],["PR","Puerto Rico","NA"],["JM","Jamaica","NA"],["TT","Trinidad and Tobago","NA"],["BZ","Belize","NA"],["BS","Bahamas","NA"],["GP","Guadeloupe","NA"],["MQ","Martinique","NA"],["BB","Barbados","NA"],["CW","Curacao","NA"],["LC","Saint Lucia","NA"],["GD","Grenada","NA"],["AW","Aruba","NA"],["VC","Saint Vincent and the Grenadines","NA"],["AG","Antigua and Barbuda","NA"],["VI","United States Virgin Islands","NA"],["KY","Cayman Islands","NA"],["DM","Dominica","NA"],["BM","Bermuda","NA"],["GL","Greenland","NA"],["TC","Turks and Caicos Islands","NA"],["KN","Saint Kitts and Nevis","NA"],["SX","Sint Maarten","NA"],["VG","British Virgin Islands","NA"],["MF","Saint Martin","NA"],["AI","Anguilla","NA"],["BL","Saint Barthelemy","NA"],["PM","Saint Pierre and Miquelon","NA"],["MS","Montserrat","NA"],["DE","Germany","EU"],["GB","United Kingdom","EU"],["FR","France","EU"],["IT","Italy","EU"],["ES","Spain","EU"],["UA","Ukraine","EU"],["PL","Poland","EU"],["RO","Romania","EU"],["NL","Netherlands","EU"],["BE","Belgium","EU"],["SE","Sweden","EU"],["CZ","Czechia","EU"],["PT","Portugal","EU"],["GR","Greece","EU"],["HU","Hungary","EU"],["AT","Austria","EU"],["CH","Switzerland","EU"],["BY","Belarus","EU"],["BG","Bulgaria","EU"],["RS","Serbia","EU"],["DK","Denmark","EU"],["NO","Norway","EU"],["FI","Finland","EU"],["SK","Slovakia","EU"],["IE","Ireland","EU"],["HR","Croatia","EU"],["BA","Bosnia and Herzegovina","EU"],["MD","Moldova","EU"],["LT","Lithuania","EU"],["AL","Albania","EU"],["SI","Slovenia","EU"],["LV","Latvia","EU"],["MK","North Macedonia","EU"],["CY","Cyprus","EU"],["EE","Estonia","EU"],["LU","Luxembourg","EU"],["ME","Montenegro","EU"],["MT","Malta","EU"],["IS","Iceland","EU"],["JE","Jersey","EU"],["IM","Isle of Man","EU"],["AD","Andorra","EU"],["GG","Guernsey","EU"],["FO","Faroe Islands","EU"],["GI","Gibraltar","EU"],["LI","Liechtenstein","EU"],["MC","Monaco","EU"],["SM","San Marino","EU"],["VA","Vatican City","EU"],["RU","Russia","EU"],["IN","India","AS"],["CN","China","AS"],["ID","Indonesia","AS"],["PK","Pakistan","AS"],["BD","Bangladesh","AS"],["JP","Japan","AS"],["PH","Philippines","AS"],["VN","Vietnam","AS"],["IR","Iran","AS"],["TR","Turkey","AS"],["TH","Thailand","AS"],["MM","Myanmar","AS"],["KR","South Korea","AS"],["IQ","Iraq","AS"],["AF","Afghanistan","AS"],["YE","Yemen","AS"],["UZ","Uzbekistan","AS"],["MY","Malaysia","AS"],["SA","Saudi Arabia","AS"],["NP","Nepal","AS"],["KP","North Korea","AS"],["SY","Syria","AS"],["LK","Sri Lanka","AS"],["TW","Taiwan","AS"],["KZ","Kazakhstan","AS"],["KH","Cambodia","AS"],["JO","Jordan","AS"],["AE","United Arab Emirates","AS"],["TJ","Tajikistan","AS"],["AZ","Azerbaijan","AS"],["IL","Israel","AS"],["LA","Laos","AS"],["TM","Turkmenistan","AS"],["KG","Kyrgyzstan","AS"],["HK","Hong Kong","AS"],["SG","Singapore","AS"],["LB","Lebanon","AS"],["PS","Palestine","AS"],["OM","Oman","AS"],["KW","Kuwait","AS"],["GE","Georgia","AS"],["MN","Mongolia","AS"],["QA","Qatar","AS"],["AM","Armenia","AS"],["BH","Bahrain","AS"],["TL","Timor-Leste","AS"],["BT","Bhutan","AS"],["MO","Macau","AS"],["MV","Maldives","AS"],["BN","Brunei","AS"],["NG","Nigeria","AF"],["ET","Ethiopia","AF"],["EG","Egypt","AF"],["CD","DR Congo","AF"],["TZ","Tanzania","AF"],["ZA","South Africa","AF"],["KE","Kenya","AF"],["SD","Sudan","AF"],["UG","Uganda","AF"],["DZ","Algeria","AF"],["AO","Angola","AF"],["MA","Morocco","AF"],["MZ","Mozambique","AF"],["GH","Ghana","AF"],["MG","Madagascar","AF"],["CI","Ivory Coast","AF"],["CM","Cameroon","AF"],["NE","Niger","AF"],["ML","Mali","AF"],["BF","Burkina Faso","AF"],["MW","Malawi","AF"],["ZM","Zambia","AF"],["TD","Chad","AF"],["SO","Somalia","AF"],["SN","Senegal","AF"],["ZW","Zimbabwe","AF"],["GN","Guinea","AF"],["BJ","Benin","AF"],["RW","Rwanda","AF"],["BI","Burundi","AF"],["SS","South Sudan","AF"],["TN","Tunisia","AF"],["TG","Togo","AF"],["SL","Sierra Leone","AF"],["LY","Libya","AF"],["CG","Republic of the Congo","AF"],["LR","Liberia","AF"],["CF","Central African Republic","AF"],["MR","Mauritania","AF"],["ER","Eritrea","AF"],["NA","Namibia","AF"],["GM","Gambia","AF"],["GA","Gabon","AF"],["BW","Botswana","AF"],["LS","Lesotho","AF"],["GW","Guinea-Bissau","AF"],["GQ","Equatorial Guinea","AF"],["SZ","Eswatini","AF"],["MU","Mauritius","AF"],["DJ","Djibouti","AF"],["KM","Comoros","AF"],["RE","Reunion","AF"],["EH","Western Sahara","AF"],["CV","Cape Verde","AF"],["YT","Mayotte","AF"],["ST","Sao Tome and Principe","AF"],["SC","Seychelles","AF"],["SH","Saint Helena Ascension and Tristan da Cunha","AF"]];
+const CONT = {AS:"Asia",EU:"Europe",AF:"Africa",NA:"North America",SA:"South America",OC:"Oceania"};
+const BY_CODE = Object.fromEntries(COUNTRIES.map(c=>[c[0],c]));
+const $ = s => document.querySelector(s);
+const q=$("#q"), go=$("#go"), sel=$("#country"), status=$("#status"), out=$("#out");
+let mode="all", runId=0, shotUrl=null;
+
+for (const k of Object.keys(CONT)){
+  const og=document.createElement("optgroup"); og.label=CONT[k];
+  COUNTRIES.filter(c=>c[2]===k).sort((a,b)=>a[1].localeCompare(b[1])).forEach(c=>{
+    const o=document.createElement("option"); o.value=c[0]; o.textContent=flag(c[0])+" "+c[1]; og.append(o);
+  });
+  sel.append(og);
+}
+sel.value="IN";
+
+function setMode(m){
+  mode=m; runId++;
+  $("#t-all").setAttribute("aria-selected", m==="all");
+  $("#t-one").setAttribute("aria-selected", m==="one");
+  sel.hidden = m!=="one";
+  go.textContent = m==="all" ? "Test all countries" : "Test from this country";
+  out.innerHTML=""; status.innerHTML=""; go.disabled=false;
+}
+$("#t-all").onclick=()=>setMode("all");
+$("#t-one").onclick=()=>setMode("one");
+setMode("all");
+
+function clean(v){ v=v.trim().toLowerCase().replace(/^[a-z]+:\/\//,"").replace(/^www\./,""); return v.split(/[\/?#\s]/)[0]; }
+function flag(code){ if(!/^[A-Za-z]{2}$/.test(code||""))return "🌐"; return String.fromCodePoint(...code.toUpperCase().split("").map(c=>0x1F1E6+c.charCodeAt(0)-65)); }
+function esc(s){ const d=document.createElement("div"); d.textContent=s==null?"":String(s); return d.innerHTML; }
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+
+// Turn one live result into works / doesn't work + a plain reason
+function judge(r){
+  if(!r || r.status==="offline") return {s:"none", why:"No test machine available"};
+  if(r.status==="finished" && r.statusCode){
+    if(r.statusCode<400) return {s:"open", why:`Opened (${r.statusCode})${r.total?` in ${(r.total/1000).toFixed(1)}s`:""}`};
+    if(r.statusCode===451) return {s:"no", why:"Blocked for legal reasons (451)"};
+    if(r.statusCode===403) return {s:"no", why:"Access denied (403), often a country or network block"};
+    return {s:"no", why:`Website returned an error (${r.statusCode}${r.statusCodeName?" "+r.statusCodeName:""})`};
+  }
+  const e=(r.error||"").toLowerCase();
+  if(e.includes("reset")) return {s:"no", why:"Connection was cut off, a common sign of blocking"};
+  if(e.includes("enotfound")||e.includes("dns")) return {s:"no", why:"Address couldn't be found, possibly a DNS block"};
+  if(e.includes("timeout")||e.includes("timed out")) return {s:"no", why:"Timed out, the site never answered"};
+  if(e.includes("refused")) return {s:"no", why:"Connection refused"};
+  if(e.includes("cert")||e.includes("tls")||e.includes("ssl")) return {s:"no", why:"Secure connection failed, possibly tampered with"};
+  return {s:"no", why: r.error ? "Failed: "+r.error.slice(0,80) : "Couldn't open the site"};
+}
+
+async function liveTest(domain, codes, my){
+  const start=await fetch("/api/check",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({url:domain,countries:codes})});
+  const sd=await start.json().catch(()=>({}));
+  if(!start.ok) throw new Error(sd.error||"The test couldn't start.");
+  for(let i=0;i<40;i++){
+    await sleep(1500);
+    if(my!==runId) return null;
+    const r=await fetch("/api/result?id="+encodeURIComponent(sd.id));
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok) throw new Error(d.error||"Couldn't read the results.");
+    if(d.status!=="in-progress") return d.results||[];
+  }
+  throw new Error("The test took too long. Try again.");
+}
+
+function working(label){
+  status.innerHTML=`<div class="thinking"><span class="pulse"></span><span>${esc(label)}</span></div>`;
+}
+function fail(msg){ status.innerHTML=`<div class="err">${esc(msg)}</div>`; go.disabled=false; }
+
+async function check(raw){
+  const d=clean(raw);
+  if(!d||!/^[a-z0-9.-]+\.[a-z]{2,}$/.test(d)){ fail("Enter a website address, like example.com."); q.focus(); return; }
+  q.value=d; const my=++runId; go.disabled=true; out.innerHTML="";
+  if(mode==="all"){
+    working(`Testing ${d} live from test machines worldwide. This takes about 10 to 30 seconds…`);
+    try{ const res=await liveTest(d, COUNTRIES.map(c=>c[0]), my); if(my!==runId)return; status.innerHTML=""; renderAll(res,d); go.disabled=false; }
+    catch(e){ if(my===runId) fail(e.message); }
+  } else {
+    const c=BY_CODE[sel.value];
+    working(`Opening ${d} from ${c[1]}…`);
+    renderOneShell(d,c);
+    loadShot(d,c,my);
+    try{ const res=await liveTest(d,[c[0]],my); if(my!==runId)return; status.innerHTML=""; renderOneResult(res,d,c); go.disabled=false; }
+    catch(e){ if(my===runId) fail(e.message); }
+  }
+}
+
+function renderAll(results,d){
+  const byC={};
+  for(const r of results){ const k=(r.country||"").toUpperCase(); if(k && (!byC[k] || byC[k].status!=="finished")) byC[k]=r; }
+  const st={}; COUNTRIES.forEach(c=>st[c[0]]=judge(byC[c[0]]));
+  const works=COUNTRIES.filter(c=>st[c[0]].s==="open").length;
+  const no=COUNTRIES.filter(c=>st[c[0]].s==="no");
+  const tested=COUNTRIES.filter(c=>st[c[0]].s!=="none").length;
+
+  let h=`<div class="result"><h2 class="domain">${esc(d)}</h2><span class="conf">Live test, ${new Date().toLocaleString()}</span>
+   <div class="stats">
+    <div class="stat s-open"><b>${works}</b><span>Works</span></div>
+    <div class="stat s-no"><b>${no.length}</b><span>Doesn't work</span></div>
+    <div class="stat s-ns"><b>${COUNTRIES.length-tested}</b><span>No test machine</span></div></div>
+   <p class="def">Works means the site opened normally from a real machine in that country. Countries without a test machine couldn't be checked.</p>`;
+  if(no.length) h+=`<div class="blockedbox"><h2>Doesn't work in these countries</h2><ul>${no.map(c=>`<li><span class="flag" aria-hidden="true">${flag(c[0])}</span><span class="cname">${esc(c[1])}</span><span class="cnote">${esc(st[c[0]].why)}${byC[c[0]]?.network?` · tested on ${esc(byC[c[0]].network)}`:""}</span></li>`).join("")}</ul></div>`;
+  else if(tested) h+=`<div class="okbox">It opened normally in every country that has a test machine.</div>`;
+
+  h+=`<div class="allhead"><h2>All ${COUNTRIES.length} countries</h2>
+    <div class="filter" role="group" aria-label="Show">
+      <button aria-pressed="true" data-f="all">All</button>
+      <button aria-pressed="false" data-f="open">Works</button>
+      <button aria-pressed="false" data-f="no">Doesn't work</button>
+      <button aria-pressed="false" data-f="none">Not tested</button></div></div>
+    <div class="key"><span><i style="background:var(--purple-soft)"></i>Works</span><span><i style="background:var(--bad)"></i>Doesn't work</span><span><i style="border:1px dashed var(--muted)"></i>No test machine</span><span>Select a country for a live screenshot</span></div>`;
+  for(const k of Object.keys(CONT)){
+    const cs=COUNTRIES.filter(c=>c[2]===k).sort((a,b)=>a[1].localeCompare(b[1]));
+    h+=`<div class="cont"><h3>${CONT[k]}</h3><div class="grid">${cs.map(c=>{const j=st[c[0]];
+      return `<button type="button" class="tile ${j.s==="no"?"no":j.s==="none"?"none":""}" data-s="${j.s}" data-c="${c[0]}" title="${esc(j.why)}" aria-label="${esc(c[1])}: ${esc(j.why)}. Open from here"><span aria-hidden="true">${flag(c[0])}</span><span class="n">${esc(c[1])}</span></button>`}).join("")}</div></div>`;
+  }
+  out.innerHTML=h+"</div>";
+  out.querySelectorAll(".filter button").forEach(btn=>btn.onclick=()=>{
+    out.querySelectorAll(".filter button").forEach(x=>x.setAttribute("aria-pressed",x===btn));
+    const f=btn.dataset.f;
+    out.querySelectorAll(".tile").forEach(t=>t.classList.toggle("hide",f!=="all"&&t.dataset.s!==f));
+    out.querySelectorAll(".cont").forEach(c=>c.classList.toggle("empty",!c.querySelector(".tile:not(.hide)")));
+  });
+  out.querySelectorAll(".tile").forEach(t=>t.onclick=()=>{ setMode("one"); sel.value=t.dataset.c; window.scrollTo({top:0,behavior:"smooth"}); check(d); });
+}
+
+function renderOneShell(d,c){
+  out.innerHTML=`<div class="result"><h2 class="domain">${esc(d)}</h2><span class="conf">Live test from ${flag(c[0])} ${esc(c[1])}</span>
+   <div id="verdict"></div>
+   <div class="browser"><div class="chrome"><span class="dots"><i></i><i></i><i></i></span><span class="addr">https://<b>${esc(d)}</b></span><span class="loc">${flag(c[0])} ${esc(c[1])}</span></div>
+     <div id="shot" class="shotwait"><span class="pulse"></span><span>Taking a real screenshot from ${esc(c[1])}. This can take up to a minute.</span></div></div>
+   <p class="caption">Real screenshot taken through an internet connection in ${esc(c[1])}.</p>
+   <ul class="facts" id="facts"></ul></div>`;
+}
+
+async function loadShot(d,c,my){
+  try{
+    const r=await fetch(`/api/preview?url=${encodeURIComponent(d)}&country=${c[0]}`);
+    if(my!==runId) return;
+    const box=$("#shot"); if(!box) return;
+    if(!r.ok){ const t=await r.text(); box.innerHTML=`<span>⚠️</span><span>No screenshot: ${esc(t.slice(0,160)||"the preview service didn't respond")}</span>`; return; }
+    const blob=await r.blob(); if(shotUrl) URL.revokeObjectURL(shotUrl); shotUrl=URL.createObjectURL(blob);
+    box.outerHTML=`<img class="shot" id="shot" alt="Screenshot of ${esc(d)} opened from ${esc(c[1])}" src="${shotUrl}">`;
+  }catch{ const box=$("#shot"); if(box&&my===runId) box.innerHTML=`<span>⚠️</span><span>The screenshot couldn't be loaded. Try again.</span>`; }
+}
+
+function renderOneResult(results,d,c){
+  const r=results.find(x=>(x.country||"").toUpperCase()===c[0]) || results[0];
+  const j=judge(r);
+  const v=$("#verdict"); if(!v) return;
+  const cls=j.s==="open"?"accessible":j.s==="none"?"unknown":"blocked";
+  const title=j.s==="open"?`Works in ${esc(c[1])}`:j.s==="none"?`No test machine in ${esc(c[1])}`:`Doesn't work in ${esc(c[1])}`;
+  v.innerHTML=`<div class="verdict v-${cls}"><span class="big" aria-hidden="true">${j.s==="open"?"✅":j.s==="none"?"❔":"🚫"}</span><h2>${title}</h2><p>${esc(j.why)}</p></div>`;
+  const f=$("#facts"); if(!f||!r) return;
+  let h="";
+  if(r.city||r.network) h+=`<li><b>Tested from</b>${esc([r.city,c[1]].filter(Boolean).join(", "))}${r.network?` on ${esc(r.network)}`:""}</li>`;
+  if(r.statusCode) h+=`<li><b>Response</b>${esc(r.statusCode)} ${esc(r.statusCodeName||"")}</li>`;
+  if(r.total) h+=`<li><b>Load time</b>${(r.total/1000).toFixed(2)} seconds</li>`;
+  if(r.error) h+=`<li><b>Error details</b>${esc(r.error)}</li>`;
+  h+=`<li><b>Good to know</b>Blocking can differ between internet providers, so another network in ${esc(c[1])} may give a different result.</li>`;
+  f.innerHTML=h;
+}
+
+go.onclick=()=>check(q.value);
+q.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();check(q.value);}});
+document.querySelectorAll("#tries .chip").forEach(c=>c.onclick=()=>check(c.textContent));
+</script>
+</body>
+</html>
